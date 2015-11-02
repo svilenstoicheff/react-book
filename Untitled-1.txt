@@ -1,0 +1,6 @@
+
+background-image: url('http://www.1zoom.net/big2/817/260444-werecat.jpg');
+background-color: rgba(0, 0, 0, 1)!important;     
+transform: skew(55deg);
+margin: 99em;
+transition: all 90s ease-out;
