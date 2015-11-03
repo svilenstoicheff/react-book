@@ -26,6 +26,15 @@ var headers = ["Book", "Author", "Language", "Published", "Sales"],
 				search: false
 				};
 		}, 
+		_log: [], 
+		_logSetState: function(newState){
+			if (this._log.length === 0) {
+				this._log.push(JSON.parse(JSON.stringify(this.state)));
+			}
+			this._log.push(JSON.parse(JSON.stringify(newState)));
+			this.setState(newState);
+		},
+		
 		propTypes: {
 					headers: React.PropTypes.arrayOf(React.PropTypes.string),
 					initialData: React.PropTypes.arrayOf(
@@ -37,21 +46,21 @@ var headers = ["Book", "Author", "Language", "Published", "Sales"],
 		
 		_toggleSearch: function(){
 			if (this.state.search) {
-				this.setState({
+				this._logSetState({
 					data: this._preSearchData, 
 					search: false
 				});
 				this._preSearchData= null;
 			} else {
 				this._preSearchData = this.state.data;
-				this.setState({search: true}); 
+				this._logSetState({search: true}); 
 			}	
 		},
 		
 		_search: function(e){
 			var needle = e.target.value.toLowerCase();
 			if (!needle) {
-				this.setState({data: this._preSearchData});
+				this._logSetState({data: this._preSearchData});
 				return;
 			}
 			var idx = e.target.dataset.idx;
@@ -62,7 +71,7 @@ var headers = ["Book", "Author", "Language", "Published", "Sales"],
 			var searchdata = this._preSearchData.filter(function(row){
 				return row[idx].toString().toLowerCase().indexOf(needle) > -1;
 			});
-			this.setState({data: searchdata});
+			this._logSetState({data: searchdata});
 			
 		},
 		_sort: function(e){
@@ -72,21 +81,21 @@ var headers = ["Book", "Author", "Language", "Published", "Sales"],
 			data.sort(function(a,b){
 				return descending ? a[column] < b[column] : a[column] > b[column];
 			});
-			this.setState({
+			this._logSetState({
 				data: data, 
 				sortby: column, 
 				descending: descending
 				});
 		}, 
 		_showEditor: function(e){
-			this.setState({edit: {row: parseInt(e.target.dataset.row, 10), cell: e.target.cellIndex }});
+			this._logSetState({edit: {row: parseInt(e.target.dataset.row, 10), cell: e.target.cellIndex }});
 		}, 
 		_save: function(e){
 			e.preventDefault();
 			var input = e.target.firstChild;
 			var data = this.state.data.slice();
 			data[this.state.edit.row][this.state.edit.cell] = input.value;
-			this.setState({
+			this._logSetState({
 				edit: null, 
 				data: data
 			});
@@ -155,6 +164,27 @@ var headers = ["Book", "Author", "Language", "Published", "Sales"],
 					
 				)
 			);
+		},
+		componentDidMount: function () {
+			document.onkeydown = function(e) {
+				if (e.altKey && e.shiftKey && e.which === 82) {
+					this._replay();
+				}
+			}.bind(this);
+		}, 
+		_replay: function() {
+			if (this._log.length === 0) {
+				console.warn('No state to replay yet');
+				return;
+			}	
+			var idx = -1;
+			var interval = setInterval(function() {
+				idx++;
+				if (idx === this._log.length -1) {
+					clearInterval(interval);
+				}
+				this.setState(this._log[idx]);
+			}.bind(this), 1000);
 		}
 	});
 	
