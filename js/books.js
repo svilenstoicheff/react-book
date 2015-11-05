@@ -109,12 +109,19 @@ var headers = ["Book", "Author", "Language", "Published", "Sales"],
 				
 		},
 		_renderToolbar: function(){
-			return (
+			//JS version
+			/*return (
 				React.DOM.div({className: 'toolbar'},
 					React.DOM.button({onClick: this._toggleSearch, className: 'button'}, 'Search'),  
 					React.DOM.a({onClick: this._download.bind(this, 'json'), href: 'data.json', className: 'button'}, 'Export JSON'),  
 					React.DOM.a({onClick: this._download.bind(this, 'csv'), href: 'data.csv', className: 'button'}, 'Export CSV')
-				));	
+				));	*/
+				//JSX version
+				return(<div className="toolbar">
+					<button className="button" onClick={this._toggleSearch}>Search</button>
+					<a href="data.json" onClick={this._download.bind(this, 'json')} className="button">Export JSON</a>
+					<a href="data.csv" onClick={this._download.bind(this, "csv")} className="button">Export CSV</a>
+				</div>);
 		},
 		_download: function(format, ev) {
 			var contents = format === 'json' ? JSON.stringify(this.state.data) : this.state.data.reduce(function (result, row) {
@@ -171,10 +178,12 @@ var headers = ["Book", "Author", "Language", "Published", "Sales"],
 										);
 									}
 									//otherwise just show the text content 
-							return React.DOM.td({
+							/*return React.DOM.td({
 								key: idx, 
 								'data-row': rowidx
 								}, content);
+								*/
+							return(<td key={idx} data-row={rowidx}>{content}</td>);	
 							
 						})));
 					})) 
